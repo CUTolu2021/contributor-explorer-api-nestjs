@@ -8,18 +8,18 @@ import { CacheModule } from '@nestjs/cache-manager';
 @Module({
   providers: [GithubService],
   imports: [
-    CacheModule.register(), // Import CacheModule to make CACHE_MANAGER available
-    ConfigModule.forRoot(), // This loads the .env file and makes variables available
-    // Use an async factory to ensure ConfigService is available
+    CacheModule.register(), 
+    ConfigModule.forRoot(), 
+    
     HttpModule.registerAsync({
-      imports: [ConfigModule], // Make sure ConfigModule is imported
+      imports: [ConfigModule], 
       useFactory: async (configService: ConfigService) => ({
         timeout: 60000,
         headers: {
           Authorization: `token ${configService.get<string>('GITHUB_PAT')}`,
         },
       }),
-      inject: [ConfigService], // Inject ConfigService into the factory
+      inject: [ConfigService], 
     }),
   ],
   exports: [GithubService],

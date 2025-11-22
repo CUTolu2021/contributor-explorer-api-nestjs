@@ -10,9 +10,9 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     CacheModule.register({ 
-      ttl: 3600, // Time to live in seconds (1 hour)
-      max: 1000,  // Max number of items in the cache (optional)
-      isGlobal: true, // Make CacheModule available everywhere
+      ttl: 3600, 
+      max: 1000,   
+      isGlobal: true, 
     }),
     GithubModule,
     AuthModule],

@@ -39,7 +39,6 @@ export class GithubService {
   ): Promise<any[]> {
     const isFirstCall = url === undefined;
 
-    // If this is the first call, use the base URL for page 1
     const apiUrl =
       url ||
       `https://api.github.com/orgs/${this.GITHUB_ORG}/repos?per_page=100`;
@@ -144,22 +143,15 @@ export class GithubService {
     this.logger.log('Starting contributor aggregation process...');
 
     // 1. Get the list of all repositories
-    //const repos = await this.getAngularRepositories();
     const allRepos = await this.getAngularRepositories();
-
-    // ⬇️ TEMPORARY CHANGE: Take only the first 2 repositories for testing ⬇️
-    //const reposToProcess = allRepos.slice(0, 2);
 
     const repoNames = allRepos.map((repo) => repo.name);
     this.logger.log(`Processing all ${repoNames.length} repositories.`);
-    //this.logger.log(`TEMPORARY TEST: Processing only ${repoNames.length} repositories to avoid rate limits.`);
-    // This map will store our aggregated data, keyed by the contributor's login (username).
+   
     const contributorsMap = new Map<string, AggregatedContributor>();
 
     // 2. Process contributors for all repositories in parallel
-    // We use Promise.allSettled to allow some individual repo fetches to fail
-    // without stopping the whole process.
-    const results = await Promise.allSettled(
+   const results = await Promise.allSettled(
       repoNames.map(async (repoName) => {
         const repoContributors = await this.getRepoContributors(repoName);
 
@@ -169,7 +161,6 @@ export class GithubService {
           const contributions = contributor.contributions || 0;
 
           if (!contributorsMap.has(login)) {
-            // First time seeing this contributor
             contributorsMap.set(login, {
               login: login,
               totalContributions: 0,
@@ -177,7 +168,6 @@ export class GithubService {
             });
           }
 
-          // Get the current entry and update it
           const currentData = contributorsMap.get(login)!; // Use non-null assertion as we just ensured it exists
           currentData.totalContributions += contributions;
           currentData.reposContributedTo.push(repoName);
@@ -205,13 +195,10 @@ export class GithubService {
       `Attempting to retrieve single contributor details for: ${login}`,
     );
 
-    // 1. Get the full aggregated list from the cache
-    // The list is retrieved as an array of AggregatedContributor objects.
     const cachedList: AggregatedContributor[] = await this.cacheManager.get(
       this.CONTRIBUTORS_CACHE_KEY,
     );
 
-    // Safety check: If the cache is empty, we cannot find the contributor
     if (!cachedList || cachedList.length === 0) {
       this.logger.warn(
         'Cache is empty. Cannot retrieve single contributor details.',
@@ -219,7 +206,7 @@ export class GithubService {
       return null;
     }
 
-    // 2. Search the cached list for the requested login (case-insensitive)
+    
     const contributor = cachedList.find(
       (c) => c.login.toLowerCase() === login.toLowerCase(),
     );
@@ -256,19 +243,18 @@ export class GithubService {
       'Fetching full details for unique contributors. This might take a moment...',
     );
 
-    const batchSize = 50; // Process 50 users at a time
+    const batchSize = 50; 
     const updatedList: AggregatedContributor[] = [];
 
     for (let i = 0; i < list.length; i += batchSize) {
       const batch = list.slice(i, i + batchSize);
       this.logger.log(`Processing batch ${i / batchSize + 1}...`);
 
-      // Use Promise.allSettled to fetch details for the current batch in parallel
       const batchResults = await Promise.allSettled(
         batch.map(async (contributor) => {
           const details = await this.fetchContributorDetails(contributor.login);
           if (details) {
-            // Merge the full details into the aggregated object
+            
             return {
               ...contributor,
               details: details,
@@ -277,11 +263,11 @@ export class GithubService {
               public_gists: details.public_gists,
             };
           }
-          return contributor; // Return original if fetch failed
+          return contributor; 
         }),
       );
 
-      // Add successfully fetched and updated contributors to our final list
+      
       batchResults.forEach((result) => {
         if (result.status === 'fulfilled' && result.value) {
           updatedList.push(result.value);
@@ -309,7 +295,7 @@ export class GithubService {
   async getRepoDetailsWithContributors(
     repoName: string,
   ): Promise<RepositoryDetails | null> {
-    // Run two requests in parallel for speed:
+    
     const [basicDetails, contributors] = await Promise.all([
       this.fetchBasicRepoDetails(repoName), // Basic details
       this.getRepoContributors(repoName), // Contributors (we reuse this from Step 4)

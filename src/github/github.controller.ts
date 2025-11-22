@@ -1,8 +1,11 @@
-import { Controller, Get, Logger, Param, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Logger, Param, UseGuards } from '@nestjs/common';
 import { GithubService } from './github.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('GitHub Endpoints')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('github') 
 export class GithubController {
@@ -15,6 +18,9 @@ export class GithubController {
    * Retrieves the list of Angular organization repositories.
    */
   @Get('repositories')
+  @ApiOperation({ summary: 'Get all Angular repositories' })
+  @ApiResponse({ status: 200, description: 'Returns the aggregated list of all repositories.' })
+  @ApiResponse({ status: 403, description: 'GitHub API rate limit exceeded.' })
   async getAngularRepositories() {
     this.logger.log('Received request for Angular repositories.');
 
@@ -34,6 +40,9 @@ export class GithubController {
    * Fetches, aggregates, and returns the ranked list of all Angular contributors.
    */
   @Get('contributors')
+  @ApiOperation({ summary: 'Get all Angular contributors' })
+  @ApiResponse({ status: 200, description: 'Returns the aggregated list of all contributors.' })
+  @ApiResponse({ status: 403, description: 'GitHub API rate limit exceeded.' })
   async getAggregatedContributors() {
     this.logger.log('Received request for aggregated contributors list.');
     
@@ -45,6 +54,9 @@ export class GithubController {
   }
 
   @Get('contributor/:login') 
+  @ApiOperation({ summary: 'Get specific contributor details' })
+  @ApiResponse({ status: 200, description: 'Returns detailed profile of a contributor.' })
+  @ApiResponse({ status: 404, description: 'Contributor not found.' })
   async getContributorDetails(@Param('login') login: string) { 
     this.logger.log(`Received request for contributor details: ${login}`);
     
@@ -61,6 +73,9 @@ export class GithubController {
   
   @CacheTTL(3600 * 6) 
   @Get('repo/:repoName')
+  @ApiOperation({ summary: 'Get specific repository details' })
+  @ApiResponse({ status: 200, description: 'Returns detailed profile of a repository.' })
+  @ApiResponse({ status: 404, description: 'Repository not found.' })
   async getRepoDetails(@Param('repoName') repoName: string) {
     this.logger.log(`Received request for repository details: ${repoName}`);
     
