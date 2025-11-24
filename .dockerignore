@@ -1,0 +1,8 @@
+# Dependencies
+/node_modules
+# Build output
+/dist
+# Other files
+# .env
+.git
+.gitignore
