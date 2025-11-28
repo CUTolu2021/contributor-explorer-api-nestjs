@@ -20,15 +20,21 @@ export class AuthController {
 
     const jwtToken = await this.authService.generateJwt(user);
     const frontendUrl = 'http://localhost:4200'; 
-    console.log(jwtToken);
     return res.redirect(`${frontendUrl}/login?token=${jwtToken}`);
   }
 
   @Get('validate-token')
-    @UseGuards(JwtAuthGuard) 
-    validateToken() {
-        return { message: 'Token is valid' };
-    }
+  @UseGuards(JwtAuthGuard) 
+  async validateToken(@Req() req) {
+    // If the request reaches here, the JWT guard has already validated the token
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    const isValid = await this.authService.validatetoken(token);
+    return { 
+      valid: isValid,
+      user: req.user,
+      message: 'Token validation complete'
+    };
+  }
 
   @Get('login') 
   @ApiOperation({ summary: 'Returns a placeholder JWT token.' })

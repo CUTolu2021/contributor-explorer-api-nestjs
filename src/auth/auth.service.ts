@@ -24,5 +24,14 @@ export class AuthService {
     };
   }
 
+  async validatetoken(token: string): Promise<boolean> {
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      return !!payload; 
+    } catch (error) {
+      return false; 
+    }
+  }
+
   
 }
