@@ -2,23 +2,9 @@
 
 An advanced full-stack application that aggregates, ranks, and visualizes contributor data from the entire Angular GitHub organization. This project solves the challenge of visualizing data across 200+ repositories by acting as a high-performance aggregation proxy.
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Angular](https://img.shields.io/badge/Frontend-Angular%2019-dd0031)
-![NestJS](https://img.shields.io/badge/Backend-NestJS-e0234e)
-![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178c6)
-
-## 📋 Table of Contents
-- [Architecture](#-architecture)
-- [Key Features](#-key-features)
-- [Technology Stack](#-technology-stack)
-- [Getting Started](#-getting-started)
-- [Screenshots](#-screenshots)
-
 ## 🏗 Architecture
 
 This project uses a **BFF (Backend for Frontend)** pattern. The NestJS backend handles the heavy lifting of fetching data from GitHub, handling pagination, aggregating thousands of records, and caching the results to bypass rate limits.
-
-
 
 **Data Flow:**
 1. Angular requests data.
@@ -36,7 +22,7 @@ This project uses a **BFF (Backend for Frontend)** pattern. The NestJS backend h
 * **Global Error Handling:** Centralized Exception Filter for consistent JSON error responses.
 * **API Documentation:** Fully documented using Swagger/OpenAPI.
 
-### Frontend (Angular 19)
+### Frontend (Angular 19) https://github.com/CUTolu2021/contributor-explorer-ui-angularjs.git
 * **Modern Architecture:** Built with Standalone Components and Signal-based concepts.
 * **Performance:** Implemented `debounceTime` for search and HTTP Interceptors for auth injection.
 * **Robust UX:** Granular handling of loading states, empty states, and specific error codes (401 vs 403).
@@ -56,6 +42,7 @@ This project uses a **BFF (Backend for Frontend)** pattern. The NestJS backend h
 
 ### 1. Backend Setup
 ```bash
+git clone https://github.com/CUTolu2021/contributor-explorer-api-nestjs.git
 cd contributor-explorer-api
 npm install
 Configure Environment: Create a .env file in the api root:
@@ -69,10 +56,16 @@ Run Server:
 npm run start:dev
 # Server runs on http://localhost:3000
 # Swagger Docs: http://localhost:3000/api
+```
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3dbe5949-81c2-46e5-aab0-7ffde20b961b" />
+
+
 
 ### 2. Frontend Setup
-
+```
+git clone https://github.com/CUTolu2021/contributor-explorer-ui-angularjs.git
 cd contributor-explorer-ui
 npm install
 ng serve --open
+```
 # App runs on http://localhost:4200
